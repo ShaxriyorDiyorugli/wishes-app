@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Istak yozish</title>
+    <script>
+        async function sendWish() {
+            const wishInput = document.getElementById("wish");
+            const wish = wishInput.value;
+
+            if (!wish) {
+                alert("Iltimos, istak yozing!");
+                return;
+            }
+
+            const response = await fetch("/add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ wish })
+            });
+
+            if (response.ok) {
+                wishInput.value = "";
+                alert("Istak yuborildi ✅");
+            } else {
+                alert("Xatolik yuz berdi!");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>🌟 Istak yozish</h1>
+    <input type="text" id="wish" placeholder="Mening istagim...">
+    <button onclick="sendWish()">Yuborish</button>
+
+    <p><a href="/submit">📌 Hamma istaklarni ko‘rish</a></p>
+</body>
+</html>

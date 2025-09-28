@@ -1,0 +1,4 @@
+flask
+flask-cors
+qrcode[pil]
+gunicorn
