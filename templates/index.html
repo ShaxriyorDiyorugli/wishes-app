@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Напишите свои пожелания</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000010;
+            color: white;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0; left: 0;
+            width: 200%;
+            height: 200%;
+            background: url("https://www.transparenttextures.com/patterns/stardust.png");
+            animation: moveStars 60s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes moveStars {
+            from { transform: translate(0, 0); }
+            to { transform: translate(-500px, -500px); }
+        }
+
+        .logo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+        }
+
+        .logo img {
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .container h1 {
+            font-size: 42px;
+            margin-bottom: 25px;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        input {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            margin-right: 10px;
+            width: 280px;
+            background: #111;
+            color: white;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 18px;
+            background: orange;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: darkorange;
+        }
+
+        .moon {
+            position: absolute;
+            top: 40px;
+            right: 40px;
+            width: 240px;
+            height: 240px;
+            background: white;
+            border-radius: 50%;
+            overflow: hidden;
+            animation: moonGlow 3s ease-in-out infinite alternate;
+            display: block;
+        }
+
+        .moon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 40px;
+            width: 240px;
+            height: 240px;
+            background: #000010;
+            border-radius: 50%;
+        }
+
+        @keyframes moonGlow {
+            from { box-shadow: 0 0 15px white; opacity: 0.7; }
+            to   { box-shadow: 0 0 40px white; opacity: 1; }
+        }
+
+        /* 🔹 Mobile moslashuv */
+        @media (max-width: 768px) {
+            .logo img {
+                width: 150px;
+                height: 150px;
+            }
+
+            .container h1 {
+                font-size: 24px;
+            }
+
+            .input-group {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            input {
+                width: 90%;
+                font-size: 16px;
+                margin-right: 0;
+            }
+
+            button {
+                width: 95%;
+                font-size: 16px;
+                padding: 12px;
+            }
+
+            .moon {
+                width: 120px;
+                height: 120px;
+                top: 15px;
+                right: 15px;
+            }
+
+            .moon::after {
+                left: 20px;
+                width: 120px;
+                height: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="stars"></div>
+
+    <div class="logo">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+    </div>
+
+    <div class="container">
+        <h1>Напишите свои пожелания</h1>
+        <div class="input-group">
+            <input type="text" id="wishInput" placeholder="Введите пожелание...">
+            <button id="sendBtn">Отправить</button>
+        </div>
+    </div>
+
+    <a href="/admin" class="moon"></a>
+
+    <script>
+        document.getElementById("sendBtn").addEventListener("click", async () => {
+            const wish = document.getElementById("wishInput").value.trim();
+
+            if (!wish) {
+                alert("Пожалуйста, введите пожелание!");
+                return;
+            }
+
+            try {
+                const response = await fetch("/add", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ wish })
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert("✅ Пожелание добавлено!");
+                    document.getElementById("wishInput").value = "";
+                } else {
+                    alert("❌ Ошибка: " + result.error);
+                }
+            } catch (error) {
+                alert("⚠️ Serverga ulanishda xatolik!");
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel</title>
+    <style>
+        body {
+            background: black;
+            margin: 0;
+            overflow: hidden;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        .wish {
+            position: absolute;
+            font-weight: bold;
+            white-space: nowrap;
+            user-select: none;
+        }
+        .logout {
+            position: fixed;
+            top: 10px;
+            right: 20px;
+            color: red;
+            text-decoration: none;
+            z-index: 1000;
+        }
+        .clear-btn {
+            position: fixed;
+            top: 10px;
+            left: 20px;
+            color: orange;
+            cursor: pointer;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <a href="/logout" class="logout">🚪 Chiqish</a>
+    <span class="clear-btn" onclick="clearWishes()">🗑 Hamma istaklarni o‘chirish</span>
+
+    {% for rep, group in wishes %}
+        <div class="wish" data-count="{{ group|length }}">
+            {{ rep }} ({{ group|length }} ta o‘xshash)
+        </div>
+    {% endfor %}
+
+    <script>
+        function clearWishes() {
+            if (confirm("Hamma istaklarni o‘chirishni xohlaysizmi?")) {
+                fetch("/clear_wishes", {method: "POST"})
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            alert("Xatolik yuz berdi!");
+                        }
+                    })
+                    .catch(err => console.error("Xatolik:", err));
+            }
+        }
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function animateWish(wish) {
+            let x = random(0, window.innerWidth);
+            let y = random(0, window.innerHeight);
+            let dx = random(-1, 1);
+            let dy = random(-1, 1);
+            let speed = random(0.5, 2);
+
+            // Istaklar soniga qarab font hajmi
+            let count = parseInt(wish.dataset.count);
+            let fontSize = 16 + count * 4;
+            if (fontSize > 60) fontSize = 60;
+
+            let colors = ["white", "cyan", "yellow", "pink", "lime", "orange"];
+            let color = colors[Math.floor(Math.random() * colors.length)];
+
+            wish.style.left = x + "px";
+            wish.style.top = y + "px";
+            wish.style.fontSize = fontSize + "px";
+            wish.style.color = color;
+
+            function move() {
+                x += dx * speed;
+                y += dy * speed;
+
+                if (x < 0 || x > window.innerWidth - wish.offsetWidth) dx *= -1;
+                if (y < 0 || y > window.innerHeight - wish.offsetHeight) dy *= -1;
+
+                wish.style.left = x + "px";
+                wish.style.top = y + "px";
+
+                requestAnimationFrame(move);
+            }
+            move();
+        }
+        document.querySelectorAll(".wish").forEach(animateWish);
+    </script>
+</body>
+</html>
