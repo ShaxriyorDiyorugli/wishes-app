@@ -3,10 +3,11 @@ import sqlite3
 import qrcode
 import os
 from utils import deduplicate_wishes
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
-
+load_dotenv()
 DB_NAME = "wishes.db"
 
 def init_db():
@@ -23,29 +24,26 @@ def init_db():
 
 init_db()
 
-# --- QR Code sahifasi (asosiy sahifa) ---
 @app.route("/")
 def qr_page():
-    site_url = request.host_url + "home"  # foydalanuvchi QR orqali /home ga o'tadi
+    site_url = request.host_url + "home"
     img = qrcode.make(site_url)
     qr_path = "static/qr.png"
     os.makedirs("static", exist_ok=True)
     img.save(qr_path)
     return render_template("qr.html", qr_image=qr_path)
 
-# --- Asosiy tilak yozish sahifa ---
 @app.route("/home")
 def index():
     return render_template("index.html")
 
-# --- Login ---
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
 
-        if username == "Shaxri" and password == "Shaxri123":
+        if username == os.getenv("ISM") and password == os.getenv("PASSWORD"):
             session["admin"] = True
             return redirect("/admin")
         else:
@@ -53,13 +51,11 @@ def login():
 
     return render_template("login.html")
 
-# --- Logout ---
 @app.route("/logout")
 def logout():
     session.pop("admin", None)
     return redirect("/")
 
-# --- Tilak qo‘shish (AJAX / fetch) ---
 @app.route("/add", methods=["POST"])
 def add_wish():
     data = request.get_json()
@@ -76,7 +72,6 @@ def add_wish():
 
     return jsonify({"message": "Wish added successfully!"})
 
-# --- Admin sahifa ---
 @app.route("/admin")
 def admin_page():
     if not session.get("admin"):
@@ -88,12 +83,10 @@ def admin_page():
     wishes = [row[0] for row in c.fetchall()]
     conn.close()
 
-    # Tilaklarni AI orqali guruhlash
     grouped_wishes = deduplicate_wishes(wishes)
 
     return render_template("admin.html", wishes=grouped_wishes)
 
-# --- QR Code yaratish (faqat test uchun, QR sahifa / da bor) ---
 @app.route("/qrcode")
 def generate_qr():
     site_url = request.host_url + "home"
@@ -103,7 +96,6 @@ def generate_qr():
     img.save(qr_path)
     return f'<img src="/{qr_path}" alt="QR Code">'
 
-# --- Hamma istaklarni o‘chirish ---
 @app.route("/clear_wishes", methods=["POST"])
 def clear_wishes():
     if not session.get("admin"):
@@ -111,11 +103,16 @@ def clear_wishes():
 
     conn = sqlite3.connect(DB_NAME)
     c = conn.cursor()
-    c.execute("DELETE FROM wishes")   # barcha istaklarni o‘chiradi
+    c.execute("DELETE FROM wishes")
     conn.commit()
     conn.close()
 
-    return ("", 204)  # hech nima qaytarmaydi, faqat muvaffaqiyat
+    return ("", 204)
+
+@app.route("/secret")
+def secret():
+    return render_template("index.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+

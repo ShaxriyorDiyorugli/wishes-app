@@ -15,3 +15,4 @@ wishes.db
 
 .DS_Store
 Thumbs.db
+.env

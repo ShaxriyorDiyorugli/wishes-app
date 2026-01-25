@@ -38,11 +38,34 @@
             font-size: 18px;
             color: #ccc;
         }
+
+        /* 🔹 Stiker uchun style */
+        .secret-sticker {
+            position: fixed;
+            bottom: 10px;
+            right: 15px;
+            font-size: 28px;
+            background: black;
+            color: white;
+            border-radius: 50%;
+            padding: 8px 14px;
+            cursor: pointer;
+            transition: 0.3s;
+            z-index: 1000;
+            text-decoration: none;
+        }
+        .secret-sticker:hover {
+            background: white;
+            color: black;
+        }
     </style>
 </head>
 <body>
     <h1>📱 Отсканируйте QR-код со своего телефона</h1>
     <img src="{{ url_for('static', filename='qr.png') }}" alt="QR Code">
     <p>После входа через QR-код откроется окно для ввода желания .</p>
+
+    <!-- 🔹 Maxfiy stiker -->
+    <a href="/secret" class="secret-sticker">⚛</a>
 </body>
 </html>

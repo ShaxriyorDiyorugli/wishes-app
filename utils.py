@@ -3,10 +3,6 @@ from sentence_transformers import SentenceTransformer, util
 model = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
 
 def deduplicate_wishes(wishes, threshold=0.8):
-    """
-    O‘xshash tilaklarni guruhlash.
-    Har bir guruh uchun eng qisqa tilak representative bo‘ladi.
-    """
     if not wishes:
         return []
 
@@ -28,8 +24,6 @@ def deduplicate_wishes(wishes, threshold=0.8):
             if sim > threshold:
                 group.append(wishes[j])
                 used.add(j)
-
-        # eng qisqa tilakni representative sifatida olish
         representative = min(group, key=len)
         groups.append((representative, group))
 
