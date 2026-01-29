@@ -5,9 +5,9 @@ import os
 from utils import deduplicate_wishes
 from dotenv import load_dotenv
 
-app = Flask(__name__)
-app.secret_key = "super_secret_key"
 load_dotenv()
+app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY")
 DB_NAME = "wishes.db"
 
 def init_db():
@@ -114,5 +114,5 @@ def secret():
     return render_template("index.html")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
 
